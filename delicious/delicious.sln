@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "WebApplic
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Views", "Views", "{FB38BBCA-C7DC-46DB-90AB-9BF9D83EEF00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veiw", "Veiw\Veiw.csproj", "{4A421D26-FF40-44F3-8059-F4D77DF46FFA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "View", "Veiw\View.csproj", "{4A421D26-FF40-44F3-8059-F4D77DF46FFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
