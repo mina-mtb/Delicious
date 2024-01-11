@@ -7,4 +7,5 @@ public class Food
 	public FoodGroup Group { get; set; }
 	public List<Ingredient> Ingredients { get; set; }
 	public string Recipe { get; set; }
+	public Area Area { get; set; }
 }
