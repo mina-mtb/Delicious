@@ -44,7 +44,7 @@ public class FoodApiTests
     }
 
     [TestMethod]
-    [DataRow(1)]
+    [DataRow(52850)]
     public void GetFoodByIdReturnsObjectWithRelevantPropertiesSet(int id)
     {
         var actual = _api.GetFoodById(id);
