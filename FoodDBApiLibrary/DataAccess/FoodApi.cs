@@ -3,17 +3,16 @@
 using FoodDBApiLibrary.Models;
 using Newtonsoft.Json.Linq;
 
-public delegate string? CallApi(string uri);
+public delegate string? CallApi(Uri uri);
 
 public class FoodApi
 {
-	private const string _baseUri = "www.themealdb.com/api/json/v1/";
-	private string _apiKey;
-	private CallApi _callApi;
+	private readonly Uri _baseUri;
+	private readonly CallApi _callApi;
 
     public FoodApi(string apiKey = "1")
     {
-		_apiKey = apiKey;
+		_baseUri = new Uri($"https://www.themealdb.com/api/json/v1/{apiKey}/");
 		_callApi = CallApi;
     }
     public FoodApi(CallApi callApi, string apiKey = "1") : this(apiKey)
@@ -21,60 +20,16 @@ public class FoodApi
 		_callApi = callApi;
     }
 
-    public string Uri { get; set; }
-
     public Food GetFoodById(int id)
 	{
-		var uriAppend = $"lookup.php?i={id}";
-		Uri = $"{_baseUri}{_apiKey}/{uriAppend}";
+		var uri = new Uri(_baseUri, $"lookup.php?i={id}");
 
-		var json = _callApi(Uri);
+		var json = _callApi(uri);
 
 		return DeserializeFoodObject(json);
 	}
 
-	private Food DeserializeFoodObject(string json)
-	{
-		var jobjectFood = JObject.Parse(json);
-
-		var ingredients = new List<Ingredient>();
-		var counter = 1;
-		while (!string.IsNullOrEmpty((string)jobjectFood[$"strIngredient{counter}"]))
-		{
-			ingredients.Add(new Ingredient()
-			{
-				Name = (string)jobjectFood[$"strIngredient{counter}"],
-				Measure = (string)jobjectFood[$"strMeasure{counter}"]
-			});
-			counter++;
-		}
-
-		return new Food()
-		{
-			Id = (int)jobjectFood["idMeal"],
-			Name = (string)jobjectFood["strMeal"],
-			DrinkAlternate = (string)jobjectFood["strDrinkAlternate"],
-			Group = new FoodGroup()
-			{
-				Name = (string)jobjectFood["strCategory"]
-			},
-			Area = new Area()
-			{
-				Name = (string)jobjectFood["strArea"]
-			},
-			Recipe = (string)jobjectFood["strInstructions"],
-			Thumbnail = (Uri)jobjectFood["strMealThumb"],
-			Tags = (string)jobjectFood["strTags"],
-			Youtube = (Uri)jobjectFood["strYoutube"],
-			Ingredients = ingredients,
-			Source = (Uri)jobjectFood["strSource"],
-			ImageSource = (Uri)jobjectFood["strImageSource"],
-			CreativeCommons = (bool)jobjectFood["strCreativeCommonsConfirmed"],
-			DateModified = (DateTime)jobjectFood["dateModified"]
-		};
-	}
-
-	private string? CallApi(string uri)
+	private string? CallApi(Uri uri)
 	{
 		var client = new HttpClient();
 
@@ -83,5 +38,49 @@ public class FoodApi
 		//response.EnsureSuccessStatusCode();
 
 		return response.Content.ReadAsStringAsync().Result;
+	}
+
+	private Food? DeserializeFoodObject(string json)
+	{
+		var food = (JObject)JObject.Parse(json)["meals"][0];
+		if (food is null) return null;
+
+		var ingredients = new List<Ingredient>();
+		var counter = 1;
+		while (!string.IsNullOrEmpty((string)food[$"strIngredient{counter}"]))
+		{
+			ingredients.Add(new Ingredient()
+			{
+				Name = (string)food[$"strIngredient{counter}"],
+				Measure = (string)food[$"strMeasure{counter}"]
+			});
+			counter++;
+		}
+
+		return new Food()
+		{
+			Id = (int)food["idMeal"],
+			Name = (string)food["strMeal"],
+			DrinkAlternate = (string)food["strDrinkAlternate"],
+			Group = new FoodGroup()
+			{
+				Name = (string)food["strCategory"]
+			},
+			Area = new Area()
+			{
+				Name = (string)food["strArea"]
+			},
+			Recipe = (string)food["strInstructions"],
+			Thumbnail = (Uri)food["strMealThumb"],
+			Tags = (string)food["strTags"],
+			Youtube = (Uri)food["strYoutube"],
+			Ingredients = ingredients,
+			Source = (Uri)food["strSource"],
+			ImageSource = (Uri)food["strImageSource"],
+			CreativeCommons = (string)food["strCreativeCommonsConfirmed"],
+			DateModified = DateTime.TryParse((string)food["dateModified"], out DateTime result)
+				? result
+				: null
+		};
 	}
 }

@@ -13,6 +13,6 @@ public class Food
 	public List<Ingredient> Ingredients { get; set; }
 	public Uri? Source { get; set; }
     public Uri? ImageSource { get; set; }
-	public bool? CreativeCommons { get; set; }
+	public string? CreativeCommons { get; set; }
     public DateTime? DateModified { get; set; }
 }
